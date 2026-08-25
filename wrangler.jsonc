@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cmb-figma-implementation",
+  "pages_build_output_dir": "dist",
+  "compatibility_date": "2026-08-24",
+  "kv_namespaces": [
+    {
+      "binding": "CMB_AMOUNT_CONFIG",
+      "id": "b633e1fa543547ac882e69c6de55f2fa"
+    }
+  ]
+}

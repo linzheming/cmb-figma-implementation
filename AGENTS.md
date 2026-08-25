@@ -122,3 +122,12 @@ Keep this distinction when editing `src/app/App.tsx` or `src/styles/index.css`.
 - `esbuild`
 
 Do not remove these unless pnpm install/build behavior is verified afterward.
+
+## Amount Sync
+
+Desktop browsers show an amount editor panel. Saved values are persisted through Pages Functions at `/api/amounts` into the `CMB_AMOUNT_CONFIG` KV namespace.
+
+- `GET /api/amounts` returns saved values or defaults.
+- `PUT /api/amounts` stores the full amount config without authentication.
+- Mobile and installed PWA layouts hide the editor and read the same API on refresh.
+- Keep `/api/` requests out of the service worker cache so phones receive fresh values.

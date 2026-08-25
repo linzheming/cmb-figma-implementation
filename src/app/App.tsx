@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Home, Globe, BarChart2, Gift, User,
   Search, Scan, Smile, MessageSquare,
@@ -15,6 +15,52 @@ import {
 const RED = "#c8161d";
 const BLUE_GRAD =
   "linear-gradient(175deg, #4aaee6 0%, #69c1f0 30%, #9dd6f7 60%, #daeefa 85%, #f0f8fd 100%)";
+
+type AmountConfig = {
+  totalAssets: string;
+  yesterdayIncome: string;
+  monthlyExpense: string;
+  monthlyIncome: string;
+  salary: string;
+  creditCardBill: string;
+  loanLimit: string;
+};
+
+const DEFAULT_AMOUNTS: AmountConfig = {
+  totalAssets: "2,618,850.93",
+  yesterdayIncome: "12.64",
+  monthlyExpense: "608.45",
+  monthlyIncome: "17,516.36",
+  salary: "17,372.45",
+  creditCardBill: "63.45",
+  loanLimit: "30 万",
+};
+
+const AMOUNT_FIELDS: { key: keyof AmountConfig; label: string }[] = [
+  { key: "totalAssets", label: "总资产" },
+  { key: "yesterdayIncome", label: "昨日收益" },
+  { key: "monthlyExpense", label: "本月支出" },
+  { key: "monthlyIncome", label: "本月收入" },
+  { key: "salary", label: "我的薪酬" },
+  { key: "creditCardBill", label: "信用卡账单" },
+  { key: "loanLimit", label: "最高可借" },
+];
+
+function splitAmount(value: string) {
+  const normalized = value.trim().replace(/^¥\s*/, "");
+  const [integer, decimal] = normalized.split(".");
+  return {
+    integer: integer || "0",
+    decimal: decimal ? `.${decimal}` : "",
+  };
+}
+
+function normalizeAmounts(value: Partial<AmountConfig>): AmountConfig {
+  return {
+    ...DEFAULT_AMOUNTS,
+    ...value,
+  };
+}
 
 // ─── StatusBar ──────────────────────────────────────────────────────────────
 
@@ -833,9 +879,10 @@ function CommunityPage() {
 
 // ─── Wealth Page ──────────────────────────────────────────────────────────────
 
-function WealthPage() {
+function WealthPage({ amounts }: { amounts: AmountConfig }) {
   const [productTab, setProductTab] = useState("多宝理财");
   const productTabs = ["多宝理财", "稳健专区", "活钱+", "省税保"];
+  const totalAssets = splitAmount(amounts.totalAssets);
 
   const icons1 = [
     { Icon: TrendingUp, label: "理财" },
@@ -885,16 +932,16 @@ function WealthPage() {
         <div className="flex items-start justify-between">
           <div className="flex items-baseline gap-1">
             <span style={{ fontSize: 34, fontWeight: 700, color: "#111" }}>
-              2,618,850
+              {totalAssets.integer}
             </span>
-            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>.93</span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>{totalAssets.decimal}</span>
             <button
               style={{ background: "none", border: "none", cursor: "pointer", marginLeft: 4 }}
             >
               <Eye size={18} color="#888" />
             </button>
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#111" }}>12.64</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#111" }}>{amounts.yesterdayIncome}</div>
         </div>
 
         <div className="flex justify-between mt-0.5 mb-3">
@@ -1433,7 +1480,7 @@ function LifePage() {
 
 // ─── Mine Page ────────────────────────────────────────────────────────────────
 
-function MinePage() {
+function MinePage({ amounts }: { amounts: AmountConfig }) {
   const [showBalance, setShowBalance] = useState(true);
 
   return (
@@ -1551,10 +1598,10 @@ function MinePage() {
           </div>
           <div className="flex justify-between items-baseline">
             <span style={{ fontSize: 24, fontWeight: 700, color: "#111" }}>
-              {showBalance ? "¥ 2,618,850.93" : "¥ ••••••"}
+              {showBalance ? `¥ ${amounts.totalAssets}` : "¥ ••••••"}
             </span>
             <span style={{ fontSize: 22, fontWeight: 700, color: "#00aa55" }}>
-              +12.64
+              +{amounts.yesterdayIncome}
             </span>
           </div>
         </div>
@@ -1594,8 +1641,8 @@ function MinePage() {
             <span style={{ fontSize: 13, color: "#999" }}>收入</span>
           </div>
           <div className="flex justify-between items-baseline mb-3">
-            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>¥ 608.45</span>
-            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>¥ 17,516.36</span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>¥ {amounts.monthlyExpense}</span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>¥ {amounts.monthlyIncome}</span>
           </div>
           {/* Bar */}
           <div
@@ -1612,7 +1659,7 @@ function MinePage() {
             />
           </div>
           <div className="flex items-center justify-between">
-            <span style={{ fontSize: 13, color: "#555" }}>我的薪酬 ¥17,372.45</span>
+            <span style={{ fontSize: 13, color: "#555" }}>我的薪酬 ¥{amounts.salary}</span>
             <button
               style={{
                 background: "none",
@@ -1641,7 +1688,7 @@ function MinePage() {
             <div
               style={{ fontSize: 22, fontWeight: 700, color: "#111", marginTop: 10 }}
             >
-              ¥ 63.45
+              ¥ {amounts.creditCardBill}
             </div>
           </div>
           <div
@@ -1657,7 +1704,7 @@ function MinePage() {
                 抽好礼
               </span>
             </div>
-            <div style={{ fontSize: 12, color: "#999" }}>最高可借 30 万</div>
+            <div style={{ fontSize: 12, color: "#999" }}>最高可借 {amounts.loanLimit}</div>
             <div style={{ fontSize: 13, color: "#555", marginTop: 4 }}>
               年利率(单利)低至
               <span style={{ color: RED, fontWeight: 700, fontSize: 15 }}>3.0</span>…
@@ -1671,12 +1718,117 @@ function MinePage() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
+function AmountEditor({
+  amounts,
+  onSaved,
+}: {
+  amounts: AmountConfig;
+  onSaved: (amounts: AmountConfig) => void;
+}) {
+  const [draft, setDraft] = useState(amounts);
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  useEffect(() => {
+    setDraft(amounts);
+  }, [amounts]);
+
+  async function saveAmounts() {
+    setStatus("saving");
+
+    try {
+      const response = await fetch("/api/amounts", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+
+      if (!response.ok) {
+        throw new Error("Save failed");
+      }
+
+      const saved = normalizeAmounts(await response.json());
+      onSaved(saved);
+      setStatus("saved");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  return (
+    <aside className="amount-editor">
+      <div className="amount-editor__header">
+        <div>
+          <div className="amount-editor__title">金额编辑</div>
+          <div className="amount-editor__hint">保存后，手机刷新即可同步。</div>
+        </div>
+      </div>
+
+      <div className="amount-editor__fields">
+        {AMOUNT_FIELDS.map((field) => (
+          <label className="amount-editor__field" key={field.key}>
+            <span>{field.label}</span>
+            <input
+              value={draft[field.key]}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  [field.key]: event.target.value,
+                }))
+              }
+            />
+          </label>
+        ))}
+      </div>
+
+      <button
+        className="amount-editor__save"
+        disabled={status === "saving"}
+        onClick={saveAmounts}
+      >
+        {status === "saving" ? "保存中..." : "保存金额"}
+      </button>
+
+      <div className="amount-editor__status">
+        {status === "saved" && "已保存到 Cloudflare KV。"}
+        {status === "error" && "保存失败，请用 Pages 预览或线上地址打开。"}
+      </div>
+    </aside>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState<TabId>("home");
+  const [amounts, setAmounts] = useState<AmountConfig>(DEFAULT_AMOUNTS);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/amounts", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load amounts");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (isMounted) {
+          setAmounts(normalizeAmounts(data));
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setAmounts(DEFAULT_AMOUNTS);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div
-      className="app-stage flex items-center justify-center"
+      className="app-stage flex items-center justify-center gap-6"
     >
       <div
         className="app-phone relative flex flex-col overflow-hidden"
@@ -1696,13 +1848,15 @@ export default function App() {
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           {tab === "home" && <HomePage />}
           {tab === "community" && <CommunityPage />}
-          {tab === "wealth" && <WealthPage />}
+          {tab === "wealth" && <WealthPage amounts={amounts} />}
           {tab === "life" && <LifePage />}
-          {tab === "mine" && <MinePage />}
+          {tab === "mine" && <MinePage amounts={amounts} />}
         </div>
 
         <BottomNav active={tab} setActive={setTab} />
       </div>
+
+      <AmountEditor amounts={amounts} onSaved={setAmounts} />
     </div>
   );
 }
