@@ -47,11 +47,7 @@ Cloudflare Pages 地址：
 https://cmb-figma-implementation.pages.dev/
 ```
 
-自定义域名：
 
-```text
-https://cmb.wxlhc.top/
-```
 
 如果自定义域名还未解析，请在 Cloudflare DNS 中添加：
 
